@@ -1,36 +1,35 @@
 pipeline {
     
-    agent any
-    
     tools{
         jdk 'myjava'
         maven 'mymaven'
     }
-
-    parameters {
-        string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
-        text(name: 'BIOGRAPHY', defaultValue: 'jenkins documentation', description: 'Enter some information about the person')
- }
-     
-     
-     stages{
-         
-         stage ('print Name'){
-           
-           steps{
-             echo "Hello ${params.PERSON}"
-           }  
-              }
-              
-              stage('print text and Name')
-              {
-                  steps{
-                      echo "Print Bio name: ${params.BIOGRAPHY}"
-                      echo "Print name: ${params.PERSON}"
-                  }
-              }
-         
-     }
-   
+    
+    agent any
+    
+    stages{
+        
+        stage('CloneRepo')
+        {
+            steps{
+            git 'https://github.com/Sonal0409/DevOpsClassCodes.git'
+            }
+        }
+        
+        stage('Review the code'){
+            parallel{
+            stage('Code Review'){
+                steps{
+                    sh 'mvn pmd:pmd'
+                }
+            }
+            stage('Package'){
+                steps{
+                     sh 'mvn package'
+                }
+            }
+            }
+        }
+    }
    
 }
